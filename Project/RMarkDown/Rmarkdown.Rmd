@@ -1,0 +1,116 @@
+---
+title: "Testing Out with BUCA"
+author: "Corrina Kamoroff"
+date: "3/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## BUCA Data
+
+Testing out R Markdown with BUCA data
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r BUCA}
+
+library(tidyverse)
+library(janitor)
+library(skimr)
+library(httr)
+library(readr)
+library(lubridate)
+library(R2jags)
+library(RMark)
+
+toad <- read.csv("/Users/corrinakamoroff/Desktop/BUCA_ Thesis/Project/Working Data/Data_CSV.csv") 
+
+summary(toad)
+
+toad<-toad %>%
+  mutate(Date=as.Date(Date, format = "%m/%d/%y")) %>%
+  mutate(Year = format(Date, "%Y"))
+
+toad<-clean_names(toad)
+
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "10")] <- "AM"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "11")] <- "AF"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "12")] <- "E"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "4")] <- "M"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "3")] <- "T"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "8")] <- "J"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "13")] <- "EM"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "9")] <- "AU"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "16")] <- NA
+
+
+#changing columns-----
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "10")] <- "AM"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "11")] <- "AF"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "12")] <- "E"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "4")] <- "M"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "3")] <- "T"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "8")] <- "J"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "13")] <- "EM"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "9")] <- "AU"
+toad$'life_stage_sex'[which(toad$'life_stage_sex' == "16")] <- NA
+
+#More Changes----
+toad$svl_mm[which(toad$svl_mm == "999")] <- NA
+toad$mass_g[which(toad$mass_g == "999")] <- NA
+#Meadow Names-----
+toad$`meadow_code`[which(toad$`meadow_code` == "1")] <- "HM"
+toad$`meadow_code`[which(toad$`meadow_code` == "2")] <- "CT"
+toad$`meadow_code`[which(toad$`meadow_code` == "3")] <- "ST"
+toad$`meadow_code`[which(toad$`meadow_code` == "4")] <- "EX"
+toad$`meadow_code`[which(toad$`meadow_code` == "5")] <- "BP"
+toad$`meadow_code`[which(toad$`meadow_code` == "6")] <- "CM"
+toad$`meadow_code`[which(toad$`meadow_code` == "7")] <- "BB"
+toad$`meadow_code`[which(toad$`meadow_code` == "8")] <- "WC"
+toad$`meadow_code`[which(toad$`meadow_code` == "9")] <- "MM"
+toad$`meadow_code`[which(toad$`meadow_code` == "10")] <- "BT"
+toad$`meadow_code`[which(toad$`meadow_code` == "11")] <- "RT"
+toad$`meadow_code`[which(toad$`meadow_code` == "12")] <- "SN"
+toad$`meadow_code`[which(toad$`meadow_code` == "13")] <- "CS"
+toad$`meadow_code`[which(toad$`meadow_code` == "14")] <- "GH"
+toad$`meadow_code`[which(toad$`meadow_code` == "15")] <- "LT"
+toad$`meadow_code`[which(toad$`meadow_code` == "16")] <- "MT"
+toad$`meadow_code`[which(toad$`meadow_code` == "17")] <- "MA"
+toad$`meadow_code`[which(toad$`meadow_code` == "18")] <- "RP"
+toad$`meadow_code`[which(toad$`meadow_code` == "19")] <- "Cl"
+toad$`meadow_code`[which(toad$`meadow_code` == "20")] <- "TP"
+toad$`meadow_code`[which(toad$`meadow_code` == "21")] <- "TM"
+toad$`meadow_code`[which(toad$`meadow_code` == "22")] <- "HL"
+toad$`meadow_code`[which(toad$`meadow_code` == "23")] <- "FP"
+toad$`meadow_code`[which(toad$`meadow_code` == "25")] <- "SC"
+
+#Change all 999 to NA----
+toad$`mark_info_pit_id`[which(toad$`mark_info_pit_id` == "NONE")] <- NA
+toad$`mark_info_pit_id`[which(toad$`mark_info_pit_id` == "BLANK")] <- NA
+toad$`mark_info_pit_id`[which(toad$`mark_info_pit_id` == 99.0)] <- NA
+toad$`mark_info_pit_id`[which(toad$`mark_info_pit_id` == "9.85E+14")] <- NA
+toad$`cap_recap`[which(toad$`cap_recap` == "NONE")] <- NA
+toad$`cap_recap`[which(toad$`cap_recap` == "BlANK")] <- NA
+```
+
+## Plots
+
+```{r pressure, echo=FALSE}
+#### GGHightlight--------------------------------
+library(gghighlight)
+
+Plot_1<-toad %>% filter(mark_info_pit_id != "") %>%
+  ggplot(aes(x=year,y=mass_g,group=mark_info_pit_id, col=life_stage_sex)) +
+  geom_point() 
+
+#LifeStage and Sex by time of year (julian day):
+toad %>%
+  mutate(JDay = format(date,"%j")%>%
+           as.numeric()) %>%
+  ggplot(aes(x=JDay,y=svl_mm,col=life_stage_sex)) + geom_point(alpha=.6)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
